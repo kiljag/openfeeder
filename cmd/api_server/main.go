@@ -22,6 +22,13 @@ func GetFeedItems(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, feedItems)
 }
 
+func GetFeedItemContent(c *gin.Context) {
+	feedId, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	feedItemId, _ := strconv.ParseInt(c.Param("item"), 10, 64)
+	feedItem := GetFeedItemContentFromDatabase(feedId, feedItemId)
+	c.IndentedJSON(http.StatusOK, feedItem)
+}
+
 func main() {
 	fmt.Println("This is openfeeder api server")
 
@@ -29,5 +36,6 @@ func main() {
 	router.Use(cors.Default())
 	router.GET("/feeds", GetFeeds)
 	router.GET("/feeds/:id", GetFeedItems)
+	router.GET("/feeds/:id/:item", GetFeedItemContent)
 	router.Run("localhost:9080")
 }

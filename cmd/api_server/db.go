@@ -60,3 +60,22 @@ func GetFeedItemsFromDatabase(feedId int64) []RssFeedItem {
 	}
 	return items
 }
+
+func GetFeedItemContentFromDatabase(feedId int64, feedItemId int64) RssFeedItem {
+	db := GetDbConn()
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT id, title, description, link FROM feed_item WHERE feed_id = %d and id = %d", feedId, feedItemId)
+	fmt.Println("query : ", query)
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer rows.Close()
+
+	var item RssFeedItem
+	for rows.Next() {
+		rows.Scan(&item.Id, &item.Title, &item.Description, &item.Link)
+	}
+	return item
+}
