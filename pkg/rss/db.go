@@ -4,14 +4,20 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
 
-const CONN_STRING = "postgresql://postgres:mysecretpassword@localhost/staging?sslmode=disable"
-
 func GetDbConn() *sql.DB {
-	db, err := sql.Open("postgres", CONN_STRING)
+
+	pgUser := os.Getenv("PG_USER")
+	pgPass := os.Getenv("PG_PASS")
+	pgHost := os.Getenv("PG_HOST")
+	pgPort := os.Getenv("PG_PORT")
+
+	connString := fmt.Sprintf("postgresql://%s:%s@%s:%s/staging?sslmode=disable", pgUser, pgPass, pgHost, pgPort)
+	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		log.Fatal(err)
 	}
