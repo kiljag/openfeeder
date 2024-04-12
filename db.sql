@@ -14,7 +14,7 @@ create TABLE feed_item (
     title TEXT NOT NULL,
     link TEXT NOT NULL,
     description TEXT,
-    pubdate TIMESTAMP,
+    pub_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     item_hash TEXT NOT NULL UNIQUE
 );

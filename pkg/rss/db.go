@@ -24,11 +24,29 @@ func GetDbConn() *sql.DB {
 	return db
 }
 
-func FetchFeedsFromDb() []RssFeed {
+func FetchFeedFromDb(feedUrl string) *RssFeed {
+	db := GetDbConn()
+	defer db.Close()
+	query := "SELECT id, title, url FROM feed where url = %s"
+	log.Println("query : ", query)
+	rows, err := db.Query(query, feedUrl)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	defer rows.Close()
+
+	var feed RssFeed
+	for rows.Next() {
+		rows.Scan(&feed.Id, &feed.Title, &feed.Url)
+	}
+	return &feed
+}
+
+func FetchFeedsFromDb() []*RssFeed {
 	db := GetDbConn()
 	defer db.Close()
 
-	var feeds []RssFeed
 	query := "SELECT id, title, url, description, feed_hash description FROM feed"
 	log.Println("query : ", query)
 	rows, err := db.Query(query)
@@ -37,20 +55,20 @@ func FetchFeedsFromDb() []RssFeed {
 	}
 	defer rows.Close()
 
+	var feeds []*RssFeed
 	var feed RssFeed
 	for rows.Next() {
 		rows.Scan(&feed.Id, &feed.Title, &feed.Url, &feed.Description, &feed.FeedHash)
-		feeds = append(feeds, feed)
+		feeds = append(feeds, &feed)
 	}
 	return feeds
 }
 
-func FetchFeedItemsFromDb(feedId int64) []RssFeedItem {
+func FetchFeedItemsFromDb(feedId int64) []*RssFeedItem {
 
 	db := GetDbConn()
 	defer db.Close()
 
-	var items []RssFeedItem
 	query := fmt.Sprintf("SELECT id, feed_id, title, link, pubdate, item_hash "+
 		"FROM feed_item WHERE feed_id = %d ORDER BY id DESC LIMIT 50", feedId)
 	log.Println("query : ", query)
@@ -60,15 +78,16 @@ func FetchFeedItemsFromDb(feedId int64) []RssFeedItem {
 	}
 	defer rows.Close()
 
+	var items []*RssFeedItem
 	var item RssFeedItem
 	for rows.Next() {
 		rows.Scan(&item.Id, &item.FeedId, &item.Title, &item.Link, &item.PubDate, &item.ItemHash)
-		items = append(items, item)
+		items = append(items, &item)
 	}
 	return items
 }
 
-func FetchFeedItemFromDb(feedId int64, itemId int64) RssFeedItem {
+func FetchFeedItemFromDb(feedId int64, itemId int64) *RssFeedItem {
 
 	db := GetDbConn()
 	defer db.Close()
@@ -86,7 +105,21 @@ func FetchFeedItemFromDb(feedId int64, itemId int64) RssFeedItem {
 	for rows.Next() {
 		rows.Scan(&item.Id, &item.FeedId, &item.Title, &item.Description, &item.Link, &item.PubDate, &item.ItemHash)
 	}
-	return item
+	return &item
+}
+
+func PersistFeedToDb(feed *RssFeed) {
+
+	db := GetDbConn()
+	defer db.Close()
+
+	result, err := db.Exec("INSERT INTO feed (title, description, url, feed_hash) VALUES ($1, $2, $3, $4)",
+		feed.Title, feed.Description, feed.Url, feed.FeedHash)
+	if err != nil {
+		log.Println(err)
+	}
+	id, _ := result.LastInsertId()
+	log.Println("Last Insert Id : ", id)
 }
 
 func PersistFeedsToDb(feeds []RssFeed) {
@@ -104,7 +137,7 @@ func PersistFeedsToDb(feeds []RssFeed) {
 	}
 }
 
-func PersistFeedItemsToDb(items []RssFeedItem) {
+func PersistFeedItemsToDb(items []*RssFeedItem) {
 
 	db := GetDbConn()
 	defer db.Close()

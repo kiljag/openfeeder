@@ -3,7 +3,7 @@ package rss
 import "time"
 
 type RssFeed struct {
-	Id          int64
+	Id          uint64
 	Title       string
 	Url         string
 	Description string
@@ -11,13 +11,12 @@ type RssFeed struct {
 }
 
 type RssFeedItem struct {
-	Id          int64
-	FeedId      int64
+	Id          uint64
+	FeedId      uint64
 	Title       string
 	Description string
 	Link        string
-	PubDate     string
-	Timestamp   time.Time
+	PubDate     time.Time
 	IsViewed    bool
 	ItemHash    string
 }

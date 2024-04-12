@@ -2,3 +2,5 @@
 /feeder
 /api_server
 /postgres_installation
+
+/run_*.sh
