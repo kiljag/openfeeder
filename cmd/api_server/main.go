@@ -27,5 +27,6 @@ func main() {
 	router.GET("/api/feedItem/:id/:item", GetFeedItemContent)
 
 	router.POST("/api/addFeed", PostAddFeed)
+	router.POST("/api/deleteFeed/:id", PostDeleteFeed)
 	router.Run("localhost:9080")
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"openfeeder/pkg/db"
 	"openfeeder/pkg/rss"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,9 +51,13 @@ func addNewFeed(feedUrl string) (*db.Feed, []db.FeedItem) {
 			Link:        item.Link,
 			Description: &item.Description,
 			PubDate:     item.PubDate,
+			ItemHash:    item.ItemHash,
 		})
 	}
-	dbItems = db.InsertFeedItems(dbItems)
+	log.Println("Inserting feed items ", len(dbItems))
+	if len(dbItems) > 0 {
+		dbItems = db.InsertFeedItems(dbItems)
+	}
 	return dbFeed, dbItems
 }
 
@@ -103,5 +108,16 @@ func PostAddFeed(c *gin.Context) {
 		Data:    addFeedResponse,
 	}
 
+	c.IndentedJSON(http.StatusOK, apiResponse)
+}
+
+func PostDeleteFeed(c *gin.Context) {
+	feedId, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	db.DeleteFeedItemsById(uint64(feedId))
+	db.DeleteFeedById(uint64(feedId))
+
+	apiResponse := ApiResponse{
+		Success: true,
+	}
 	c.IndentedJSON(http.StatusOK, apiResponse)
 }

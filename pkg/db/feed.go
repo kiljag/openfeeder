@@ -68,3 +68,13 @@ func InsertFeeds(feeds []Feed) []Feed {
 		return feeds
 	}
 }
+
+func DeleteFeedById(feedId uint64) bool {
+	db := GetPGConn()
+	if err := db.Delete(&Feed{}, feedId).Error; err != nil {
+		log.Println(err)
+		return false
+	} else {
+		return true
+	}
+}

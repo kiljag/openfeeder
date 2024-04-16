@@ -1,7 +1,6 @@
 package rss
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -11,10 +10,15 @@ import (
 func parsePublishedTime(pubDate string) time.Time {
 	layout := "Mon, 02 Jan 2006 15:04:05"
 	t, err := time.Parse(layout, pubDate)
-	if err != nil {
-		fmt.Println("Error parsing time:", err)
+	if err == nil {
 		return t
 	}
+	layout = "02-Jan-2006 15:04:05"
+	t, err = time.Parse(layout, pubDate)
+	if err == nil {
+		return t
+	}
+	log.Println("Error parsing published at : ", pubDate)
 	return time.Now()
 }
 

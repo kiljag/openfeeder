@@ -16,7 +16,8 @@ create TABLE feed_item (
     description TEXT,
     pub_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
-    item_hash TEXT NOT NULL UNIQUE
+    item_hash TEXT NOT NULL,
+    CONSTRAINT feed_item_id_hash UNIQUE (feed_id, item_hash)
 );
 
 CREATE TABLE users (

@@ -67,3 +67,12 @@ func InsertFeedItems(items []FeedItem) []FeedItem {
 		return items
 	}
 }
+
+func DeleteFeedItemsById(feedId uint64) bool {
+	db := GetPGConn()
+	if err := db.Where("feed_id = ?", feedId).Delete(&FeedItem{}).Error; err != nil {
+		return false
+	} else {
+		return true
+	}
+}
