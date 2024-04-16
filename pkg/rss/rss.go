@@ -43,8 +43,12 @@ func ParseFeedItemsFromXml(feedUrl string) (*RssFeed, []*RssFeedItem) {
 	}
 
 	var feedItems []*RssFeedItem
+	itemHashMap := make(map[string]bool, 0)
 	for _, item := range root.Items {
 		itemHash := GetFeedItemHash(item.Title, item.Description, item.Link)
+		if _, ok := itemHashMap[itemHash]; ok {
+			continue
+		}
 		feedItem := &RssFeedItem{
 			Title:       item.Title,
 			Description: item.Description,
@@ -53,6 +57,7 @@ func ParseFeedItemsFromXml(feedUrl string) (*RssFeed, []*RssFeedItem) {
 			ItemHash:    itemHash,
 		}
 		feedItems = append(feedItems, feedItem)
+		itemHashMap[itemHash] = true
 	}
 	return &feed, feedItems
 }
